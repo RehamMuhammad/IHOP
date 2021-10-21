@@ -105,7 +105,8 @@ export function Events() {
     let eventData = await getDocs(eventCollectionRef);
     console.log(eventData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     setEvents(eventData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  };
+    };
+  
 
   useEffect(() => {
     getEvents();

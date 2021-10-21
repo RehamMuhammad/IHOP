@@ -39,6 +39,9 @@ export function Users() {
   const [phone, setPhone] = useState("");
   const [span, setSpan] = useState("");
 
+  const userCollectionRef = collection(db, "users");
+
+
   const handleUserType = (event) => {
     setUserType(event.target.value);
   };
@@ -50,14 +53,26 @@ export function Users() {
   };
 
   const updateUser = async (id) => {
+    let userData = await getDocs(userCollectionRef);
+  //   userData.docs.map((doc) => {
+  //   if(id === doc.id){
+  //     console.log(doc.data())
+  //   }
+  // })
+  localStorage.setItem('id', id)
+  
+
+    //console.log(userData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+
     const userDoc = doc(db, "users", id);
+    console.log(users)
     let newFields = { name,
       email,
       phoneNumber: phone,
       userType,
       span, };
      await updateDoc(userDoc, newFields);
-    getUsers();
+  
   };
 
   const handleUserName = (event) => {
@@ -82,7 +97,6 @@ export function Users() {
     setPhone("");
     setPhone("");
   }
-  const userCollectionRef = collection(db, "users");
 
   const createUser = async () => {
     await addDoc(userCollectionRef, {
@@ -192,7 +206,15 @@ export function Users() {
             </MenuItem>
             <MenuItem value={"Student"}>Student</MenuItem>
           </Select>
-
+          {users.map((user) => { 
+          console.log(user)
+          let userId = localStorage.getItem('id')
+          if (userId === user.id){
+            console.log(user.id)
+            const name = user.name
+          
+            return (
+              <div>
           <TextField
             label="User Name"
             color="secondary"
@@ -207,6 +229,8 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleUserEmail}
+            value={user.email}
+
           />
           <TextField
             label="Phone Number"
@@ -214,6 +238,8 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleUserPhone}
+            value={user.phoneNumber}
+
           />
           <TextField
             label="span"
@@ -221,10 +247,17 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleSpan}
+            value={user.span}
+
           />
+          </div>
+            )
+          }
+        })
+        }
         </FormControl>
       </Container>
-
+    
       <Stack
         direction="row"
         spacing={2}
