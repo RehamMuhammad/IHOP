@@ -69,7 +69,7 @@ export function Users() {
       span, };
      await updateDoc(userDoc, newFields);
      sessionStorage.setItem('id',"")
-  
+     getUsers();
   };
 
   const handleUserName = (event) => {
