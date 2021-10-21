@@ -28,7 +28,8 @@ import Chip from "@mui/material/Chip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Modal from "react-bootstrap/Modal";
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
-
+import { useHistory, Redirect } from 'react-router-dom';
+import createHistory from 'history/createBrowserHistory'
 
 
 export function Users() {
@@ -38,9 +39,9 @@ export function Users() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [span, setSpan] = useState("");
-
+  const history = createHistory();
   const userCollectionRef = collection(db, "users");
-
+  
 
   const handleUserType = (event) => {
     setUserType(event.target.value);
@@ -51,20 +52,15 @@ export function Users() {
     await deleteDoc(userDoc);
     getUsers();
   };
+  const edit = (id)=>{
+    sessionStorage.setItem('id', id);
+    getUsers();
+    
 
+  }
   const updateUser = async (id) => {
-    let userData = await getDocs(userCollectionRef);
-  //   userData.docs.map((doc) => {
-  //   if(id === doc.id){
-  //     console.log(doc.data())
-  //   }
-  // })
-  localStorage.setItem('id', id)
   
-
-    //console.log(userData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-
-    const userDoc = doc(db, "users", id);
+       const userDoc = doc(db, "users", id);
     console.log(users)
     let newFields = { name,
       email,
@@ -72,6 +68,7 @@ export function Users() {
       userType,
       span, };
      await updateDoc(userDoc, newFields);
+     sessionStorage.setItem('id',"")
   
   };
 
@@ -161,10 +158,10 @@ export function Users() {
                     variant="contained"
                     style={{ backgroundColor: "purple" }}
                     onClick={() => {
-                      updateUser(user.id);
+                      edit(user.id);
                     }}
                   >
-                    Update User
+                    Edit User
                   </Button>
                 </TableCell>
               </TableRow>
@@ -208,10 +205,12 @@ export function Users() {
           </Select>
           {users.map((user) => { 
           console.log(user)
-          let userId = localStorage.getItem('id')
+          let userId = sessionStorage.getItem('id')
+          console.log(userId)
+
           if (userId === user.id){
-            console.log(user.id)
-            const name = user.name
+            console.log(user.name)
+            
           
             return (
               <div>
@@ -221,6 +220,10 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px", marginTop: "20px" }}
             onChange={handleUserName}
+            placeholder={user.name}
+
+            
+
           />
           <br />
           <TextField
@@ -229,7 +232,10 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleUserEmail}
-            value={user.email}
+            placeholder={user.email}
+            
+            
+            
 
           />
           <TextField
@@ -238,7 +244,8 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleUserPhone}
-            value={user.phoneNumber}
+            placeholder={user.phoneNumber}
+            
 
           />
           <TextField
@@ -247,7 +254,7 @@ export function Users() {
             focused
             style={{ width: "300px", marginBottom: "20px" }}
             onChange={handleSpan}
-            value={user.span}
+            placeholder={user.span}
 
           />
           </div>
@@ -270,7 +277,10 @@ export function Users() {
         >
           Add User
         </Button>
-        <Button variant="contained" style={{ backgroundColor: "purple" }}>
+        <Button variant="contained" style={{ backgroundColor: "purple" }}  onClick={() => {
+           let userId = sessionStorage.getItem('id')
+                      updateUser(userId);
+                    }}>
           Update User
         </Button>
       </Stack>
