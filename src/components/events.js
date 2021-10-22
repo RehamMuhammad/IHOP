@@ -6,10 +6,13 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
   updateDoc,
   listCollections,
-  query, where,
+  query, where,getDocFromCache
 } from "firebase/firestore";
+
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -82,6 +85,8 @@ export function Events() {
 //     setPhone("");
 //   }
   const eventCollectionRef = collection(db, "events");
+  const subColRef = collection(db, "events", "ihopEvent","lectures");
+  console.log(subColRef.docs)
   //const q = query(eventCollectionRef, where("lectures", "==", "UBZIkTVrWyGijWjuoX2k"));
 
 //   const querySnapshot = await getDocs(q);
@@ -103,12 +108,20 @@ export function Events() {
 
   const getEvents = async () => {
     let eventData = await getDocs(eventCollectionRef);
+    const qSnap =await getDocs(subColRef)
+    console.log(qSnap.docs.map(d => ({id: d.id, ...d.data()})))
     console.log(eventData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     setEvents(eventData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     
+   
+    
+   
+     
+    
     };
-  
-  //  console.log(doc(db,'events','lectuers'))
+   
+
+
   useEffect(() => {
     getEvents();
   }, []);

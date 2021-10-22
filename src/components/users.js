@@ -27,10 +27,9 @@ import Chip from "@mui/material/Chip";
 //import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteIcon from "@material-ui/icons/Delete";
 import Modal from "react-bootstrap/Modal";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
-import { useHistory, Redirect } from 'react-router-dom';
-import createHistory from 'history/createBrowserHistory'
-
+import ReactHTMLTableToExcel from "react-html-table-to-excel";
+import { useHistory, Redirect } from "react-router-dom";
+import createHistory from "history/createBrowserHistory";
 
 export function Users() {
   const [users, setUsers] = useState([]);
@@ -39,10 +38,11 @@ export function Users() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [span, setSpan] = useState("");
+  const [usersType, setUsersType] = useState([]);
   const history = createHistory();
   const userCollectionRef = collection(db, "users");
+  const userTypeCollectionRef = collection(db, "userType");
   
-
   const handleUserType = (event) => {
     setUserType(event.target.value);
   };
@@ -52,24 +52,17 @@ export function Users() {
     await deleteDoc(userDoc);
     getUsers();
   };
-  const edit = (id)=>{
-    sessionStorage.setItem('id', id);
+  const edit = (id) => {
+    sessionStorage.setItem("id", id);
     getUsers();
-    
-
-  }
+  };
   const updateUser = async (id) => {
-  
-       const userDoc = doc(db, "users", id);
-    console.log(users)
-    let newFields = { name,
-      email,
-      phoneNumber: phone,
-      userType,
-      span, };
-     await updateDoc(userDoc, newFields);
-     sessionStorage.setItem('id',"")
-     getUsers();
+    const userDoc = doc(db, "users", id);
+    console.log(users);
+    let newFields = { name, email, phoneNumber: phone, userType, span };
+    await updateDoc(userDoc, newFields);
+    sessionStorage.setItem("id", "");
+    getUsers();
   };
 
   const handleUserName = (event) => {
@@ -87,13 +80,13 @@ export function Users() {
   const handleSpan = (event) => {
     setSpan(event.target.value);
   };
-  
+
   const clear = () => {
     setName("");
     setEmail("");
     setPhone("");
     setPhone("");
-  }
+  };
 
   const createUser = async () => {
     await addDoc(userCollectionRef, {
@@ -108,27 +101,33 @@ export function Users() {
 
   const getUsers = async () => {
     let userData = await getDocs(userCollectionRef);
+    let userType = await getDocs(userTypeCollectionRef);
     console.log(userData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    console.log(userType.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     setUsers(userData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    console.log(users);
+    setUsersType(userType.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
   };
 
   useEffect(() => {
     getUsers();
   }, []);
-
+ 
   return (
     <Container>
-      
-      <TableContainer component={Paper} style={{ marginTop: "200px" }} >
-      <ReactHTMLTableToExcel
-                    id="test-table-xls-button"
-                    className="download-table-xls-button"
-                    table="table-to-xls"
-                    filename="tablexls"
-                    sheet="tablexls"
-                    buttonText="Download as XLS"/>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table" id="table-to-xls">
+      <TableContainer component={Paper} style={{ marginTop: "200px" }}>
+        <ReactHTMLTableToExcel
+          id="test-table-xls-button"
+          className="download-table-xls-button"
+          table="table-to-xls"
+          filename="tablexls"
+          sheet="tablexls"
+          buttonText="Download as XLS"
+        />
+        <Table
+          sx={{ minWidth: 650 }}
+          aria-label="simple table"
+          id="table-to-xls"
+        >
           <TableHead>
             <TableRow>
               <TableCell align="center">User Name</TableCell>
@@ -136,36 +135,59 @@ export function Users() {
               <TableCell align="center">User Email</TableCell>
               <TableCell align="center">User Span</TableCell>
               <TableCell align="center">User Type</TableCell>
+              <TableCell align="center">Amount</TableCell>
+              <TableCell align="center">Curncy</TableCell>
+              <TableCell align="center">Type Number</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell align="center">{user.name}</TableCell>
-                <TableCell align="center">{user.phoneNumber}</TableCell>
-                <TableCell align="center">{user.email}</TableCell>
-                <TableCell align="center">{user.span}</TableCell>
-                <TableCell align="center">{user.userType}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "purple" }}
-                    onClick={() => deleteUser(user.id)}
-                  >
-                    Delete User
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "purple" }}
-                    onClick={() => {
-                      edit(user.id);
-                    }}
-                  >
-                    Edit User
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {users&&users.map((user) => {
+
+               let userTypel = user.userType
+               return(
+               usersType.map((type)=>{
+                if(type.name === userTypel){
+                  console.log(user.name)
+                  console.log(type.price.curncy)
+                  return(
+               
+                    
+                        <TableRow>
+                          <TableCell align="center">{user.name}</TableCell>
+                          <TableCell align="center">{user.phoneNumber}</TableCell>
+                          <TableCell align="center">{user.email}</TableCell>
+                          <TableCell align="center">{user.span}</TableCell>
+                          <TableCell align="center">{user.userType}</TableCell>
+                          <TableCell align="center">{type.price.amount}</TableCell>
+                          <TableCell align="center">{type.price.currncy}</TableCell>
+                          <TableCell align="center">{type.price.typeNumber}</TableCell>
+    
+                    <TableCell>
+                            <Button
+                              variant="contained"
+                              style={{ backgroundColor: "purple" }}
+                              onClick={() => deleteUser(user.id)}
+                            >
+                              Delete User
+                            </Button>
+                            <Button
+                              variant="contained"
+                              style={{ backgroundColor: "purple" }}
+                              onClick={() => {
+                                edit(user.id);
+                              }}
+                            >
+                              Edit User
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        
+                )}
+               })
+            
+             
+            )})}
+             
           </TableBody>
         </Table>
       </TableContainer>
@@ -178,7 +200,6 @@ export function Users() {
           marginTop: "100px",
         }}
       >
-    
         <FormControl>
           <Select
             labelId="demo-simple-select-label"
@@ -203,68 +224,60 @@ export function Users() {
             </MenuItem>
             <MenuItem value={"Student"}>Student</MenuItem>
           </Select>
-          {users.map((user) => { 
-          console.log(user)
-          let userId = sessionStorage.getItem('id')
-          console.log(userId)
+          {users.map((user) => {
+            console.log(user);
+            let userId = sessionStorage.getItem("id");
+            console.log(userId);
 
-          if (userId === user.id){
-            console.log(user.name)
-            
-          
-            return (
-              <div>
-          <TextField
-            label="User Name"
-            color="secondary"
-            focused
-            style={{ width: "300px", marginBottom: "20px", marginTop: "20px" }}
-            onChange={handleUserName}
-            placeholder={user.name}
+            if (userId === user.id) {
+              console.log(user.name);
 
-            
-
-          />
-          <br />
-          <TextField
-            label="User Email"
-            color="secondary"
-            focused
-            style={{ width: "300px", marginBottom: "20px" }}
-            onChange={handleUserEmail}
-            placeholder={user.email}
-            
-            
-            
-
-          />
-          <TextField
-            label="Phone Number"
-            color="secondary"
-            focused
-            style={{ width: "300px", marginBottom: "20px" }}
-            onChange={handleUserPhone}
-            placeholder={user.phoneNumber}
-            
-
-          />
-          <TextField
-            label="span"
-            color="secondary"
-            focused
-            style={{ width: "300px", marginBottom: "20px" }}
-            onChange={handleSpan}
-            placeholder={user.span}
-
-          />
-          </div>
-            )
-          }
-        })
-        }
+              return (
+                <div>
+                  <TextField
+                    label="User Name"
+                    color="secondary"
+                    focused
+                    style={{
+                      width: "300px",
+                      marginBottom: "20px",
+                      marginTop: "20px",
+                    }}
+                    onChange={handleUserName}
+                    placeholder={user.name}
+                  />
+                  <br />
+                  <TextField
+                    label="User Email"
+                    color="secondary"
+                    focused
+                    style={{ width: "300px", marginBottom: "20px" }}
+                    onChange={handleUserEmail}
+                    placeholder={user.email}
+                  />
+                  <TextField
+                    label="Phone Number"
+                    color="secondary"
+                    focused
+                    style={{ width: "300px", marginBottom: "20px" }}
+                    onChange={handleUserPhone}
+                    placeholder={user.phoneNumber}
+                  />
+                  <TextField
+                    label="span"
+                    color="secondary"
+                    focused
+                    style={{ width: "300px", marginBottom: "20px" }}
+                    onChange={handleSpan}
+                    placeholder={user.span}
+                  />
+                </div>
+              );
+            }
+          })}
         </FormControl>
       </Container>
-    
+
       <Stack
         direction="row"
         spacing={2}
@@ -277,10 +290,14 @@ export function Users() {
         >
           Add User
         </Button>
-        <Button variant="contained" style={{ backgroundColor: "purple" }}  onClick={() => {
-           let userId = sessionStorage.getItem('id')
-                      updateUser(userId);
-                    }}>
+        <Button
+          variant="contained"
+          style={{ backgroundColor: "purple" }}
+          onClick={() => {
+            let userId = sessionStorage.getItem("id");
+            updateUser(userId);
+          }}
+        >
           Update User
         </Button>
       </Stack>

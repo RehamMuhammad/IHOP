@@ -95,7 +95,7 @@ export function Registartion() {
   const getRegs = async () => {
     let regData = await getDocs(regCollectionRef);
     console.log(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    setRegs(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    // setRegs(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
   };
 
   useEffect(() => {
@@ -116,7 +116,8 @@ export function Registartion() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {regs.map((reg) => (
+            {regs.map((reg) => {
+              return(
               <TableRow key={reg.id}>
                 <TableCell align="center">{reg.amount}</TableCell>
                 <TableCell align="center">{reg.paymentDate}</TableCell>
@@ -142,7 +143,7 @@ export function Registartion() {
                   </Button>
                 </TableCell>
               </TableRow>
-            ))}
+              )  })}
           </TableBody>
         </Table>
       </TableContainer>
