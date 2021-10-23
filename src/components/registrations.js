@@ -29,7 +29,16 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import Modal from "react-bootstrap/Modal";
 
 export function Registartion() {
-  const [regs, setRegs] = useState([]);
+  const [regs, setRegistartion] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [userType, setUserType] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [span, setSpan] = useState("");
+  const [usersType, setUsersType] = useState([]);
+  const userCollectionRef = collection(db, "users");
+
 //   const [userType, setUserType] = useState("");
 //   const [name, setName] = useState("");
 //   const [email, setEmail] = useState("");
@@ -92,17 +101,22 @@ export function Registartion() {
 //     getRegs();
 //   };
 
-  const getRegs = async () => {
-    let regData = await getDocs(regCollectionRef);
-    console.log(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    // setRegs(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  };
+  const getRegistartion = async () => {
+    const regData = await getDocs(regCollectionRef);
+    const usersData = await getDocs(userCollectionRef);
+        console.log(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        console.log(usersData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        setRegistartion(regData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    setUsers(usersData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 
+  };
+  console.log(regs)
   useEffect(() => {
-    getRegs();
+    getRegistartion();
   }, []);
 
   return (
+    
     <Container>
       <TableContainer component={Paper} style={{ marginTop: "200px" }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -116,34 +130,45 @@ export function Registartion() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {regs.map((reg) => {
-              return(
-              <TableRow key={reg.id}>
-                <TableCell align="center">{reg.amount}</TableCell>
-                <TableCell align="center">{reg.paymentDate}</TableCell>
-                <TableCell align="center">{reg.paymentStatus}</TableCell>
-                <TableCell align="center">{reg.registerType}</TableCell>
-                <TableCell align="center">{reg.registrationDate}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "purple" }}
-                  //  onClick={() => deleteReg(reg.id)}
-                  >
-                    Delete Registeration
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "purple" }}
-                    // onClick={() => {
-                    //   updateReg(reg.id);
-                    // }}
-                  >
-                    Update Registeration
-                  </Button>
-                </TableCell>
-              </TableRow>
-              )  })}
+           {users&&users.map((user)=>{
+             return(
+           
+             regs.map((reg)=>{
+               console.log(reg.userId)
+               if(user.id === reg.userId){
+                 console.log(Date(reg.paymentDate))
+                 return(
+                  <TableRow  >
+                  <TableCell align="center">{reg.amount}</TableCell>
+                  <TableCell align="center">{Date(reg.paymentDate)}</TableCell>
+                  <TableCell align="center">{reg.paymentStatus}</TableCell>
+                  <TableCell align="center">{reg.registerType}</TableCell>
+                  <TableCell align="center">{Date(reg.registrationDate)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      style={{ backgroundColor: "purple" }}
+                    //  onClick={() => deleteReg(reg.id)}
+                    >
+                      Delete Registeration
+                    </Button>
+                    <Button
+                      variant="contained"
+                      style={{ backgroundColor: "purple" }}
+                      // onClick={() => {
+                      //   updateReg(reg.id);
+                      // }}
+                    >
+                      Update Registeration
+                    </Button>
+                  </TableCell>
+                </TableRow>
+                 )
+               }
+             }))
+             })}
+             
+              
           </TableBody>
         </Table>
       </TableContainer>
